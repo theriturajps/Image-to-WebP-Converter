@@ -1,0 +1,184 @@
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  
+  <div class="riturajpsCntr">
+    <div class="riturajpsBnr">Image to WebP Converter</div>
+    <div class="riturajpsInCntr">
+      <span id="riturajpsCfN"></span>
+      <label for="riturajpsIi" class="riturajpsFi">
+        <i class="fas fa-upload"></i> Choose Image
+        <input type="file" id="riturajpsIi" accept="image/png, image/jpeg">
+      </label>
+    </div>
+    <div id="renameContainer" class="riturajpsRCntr" style="display: none;">
+      <input type="text" id="riturajpsRi" placeholder="Enter new name">
+    </div>
+    <button id="riturajpsCnvrtBtn" class="riturajpsBtn" disabled>Convert to WebP</button>
+    <div id="previewContainer" class="riturajpsPCntr" style="display: none;">
+      <img id="riturajpsPimg" alt="Converted WebP Image">
+      <a id="riturajpsDlnk" class="riturajpsBtn" download>Download WebP</a>
+    </div>
+  </div>
+
+<style>
+  .riturajpsBnr {
+      margin-bottom: 8px;
+      color: var(--header-color);
+      font-size: 1.3rem;
+  }
+.riturajpsCntr {
+      display: block;
+      background-color: rgba(0,0,0,0);
+      margin-right: auto;
+      margin-left: auto;
+      padding: 8px;
+      border-radius: 4px;
+      box-shadow: 3px 3px 0 0 #056aff;
+      text-align: center;
+      max-width: 500px;
+      border: 1px solid black;
+      width: calc(100% - 50px);
+  }
+h1 {
+  margin-bottom: 30px;
+  color: var(--header-color);
+}
+
+.riturajpsInCntr {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#riturajpsCfN {
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: var(--header-color);
+}
+
+.riturajpsFi {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: var(--header-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.riturajpsFi:hover {
+  background-color: #0056b3;
+}
+
+.riturajpsFi input[type="file"] {
+  display: none;
+}
+
+.riturajpsRCntr {
+  margin-bottom: 20px;
+}
+
+#riturajpsRi {
+  padding: 10px;
+  background-color: rgba(0,0,0,0);
+  color: var(--header-color);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.riturajpsBtn {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: #fff !important;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+.riturajpsBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.riturajpsBtn:not(:disabled):hover {
+  background-color: #0056b3;
+}
+
+.riturajpsPCntr {
+  margin-top: 30px;
+}
+
+#riturajpsPimg {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#riturajpsDlnk {
+  margin-top: 10px;
+  text-decoration: none;
+}
+</style>
+<script>
+const riturajpsIi = document.getElementById('riturajpsIi');
+const riturajpsCfN = document.getElementById('riturajpsCfN');
+const renameContainer = document.getElementById('renameContainer');
+const riturajpsRi = document.getElementById('riturajpsRi');
+const riturajpsCnvrtBtn = document.getElementById('riturajpsCnvrtBtn');
+const previewContainer = document.getElementById('previewContainer');
+const riturajpsPimg = document.getElementById('riturajpsPimg');
+const riturajpsDlnk = document.getElementById('riturajpsDlnk');
+
+riturajpsIi.addEventListener('change', () => {
+  const file = riturajpsIi.files[0];
+  if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
+    riturajpsCfN.textContent = `Current File: ${file.name}`;
+    renameContainer.style.display = 'block';
+    riturajpsCnvrtBtn.disabled = false;
+  } else {
+    riturajpsCfN.textContent = '';
+    renameContainer.style.display = 'none';
+    riturajpsCnvrtBtn.disabled = true;
+  }
+});
+
+riturajpsCnvrtBtn.addEventListener('click', () => {
+  const file = riturajpsIi.files[0];
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob(
+        (blob) => {
+          const newFileName = riturajpsRi.value || file.name.replace(/\.\w+$/, '.webp');
+          const webpBlob = blob.slice(0, blob.size, 'image/webp');
+          const newFile = new File([webpBlob], newFileName, { type: 'image/webp' });
+          const url = URL.createObjectURL(newFile);
+          riturajpsPimg.src = url;
+          riturajpsDlnk.href = url;
+          riturajpsDlnk.download = newFileName;
+          previewContainer.style.display = 'block';
+        },
+        'image/webp',
+        0.8
+      );
+    };
+    img.src = reader.result;
+  };
+
+  reader.readAsDataURL(file);
+});
+</script>
